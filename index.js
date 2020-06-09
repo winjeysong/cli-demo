@@ -6,6 +6,7 @@ const fs = require('fs');
 const util = require('util');
 const exec = require('child_process').exec;
 const chalk = require('chalk');
+const log = require('single-line-log').stdout;
 
 const pl = util.promisify(require('stream').pipeline);
 
@@ -35,6 +36,14 @@ const clStr = [`unzip -o ${tplZipName}`, `rm ${tplZipName}`, `mv cockpit-pc-tpl-
 
 fetch(tplZipUrl).then(res => {
   if (res.ok) {
+    let p = 0;
+    const total = parseInt(res.headers.get('content-length'));
+    res.body.on('data', chunk => {
+      p += chunk.length;
+      const pStr = (p / total * 100).toFixed(2).replace(/.00$/, '') + '%';
+      log(makeProgress(p, total) + ' ' + chalk.white(pStr) + '\n'); // 生成进度条和进度
+    });
+
     return pl(res.body, fs.createWriteStream(tplZipName));
   }
   throw new Error(`[Error] Request error - ${res.statusText}`);
@@ -46,8 +55,24 @@ fetch(tplZipUrl).then(res => {
         process.exit();
       }
 
+      log.clear();
+      log('');
       console.log(chalk.green(`[Success] Init Finished.`));
     });
   })
   .catch(err => console.log(chalk.red(err)));
 
+function makeProgress(p, t) {
+  const len = 50;
+  const solidLen = Math.floor(len * p / t);
+  let solidStr = '', blankStr = '';
+
+  for (let i = 0; i < solidLen; i += 1) {
+    solidStr += ' ';
+  }
+  for (let i = 0; i < len - solidLen; i += 1) {
+    blankStr += ' ';
+  }
+
+  return chalk.bgGreen(solidStr) + chalk.bgRgb(200, 200, 200)(blankStr);
+}

@@ -1,8 +1,9 @@
 {
-  "name": "cli-demo",
-  "version": "0.1.0",
+  "name": "my-coocli-demo",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
+  "files": ["index.js"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,7 +16,8 @@
   "dependencies": {
     "chalk": "^4.0.0",
     "commander": "^5.1.0",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "single-line-log": "^1.1.2"
   },
   "engines": {
     "node": ">=8.0.0"
